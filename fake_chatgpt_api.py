@@ -250,15 +250,15 @@ context affecting the new interactions.
     
     def check_chatgpt4o(self):
         """
-Check if ChatGPT-4.0 is available.
+        Check if ChatGPT-4.0 is available.
 
-This method verifies the availability of ChatGPT-4.0 for use.
+        This method verifies the availability of ChatGPT-4.0 for use.
 
-**Returns:**
+        **Returns:**
 
-  / *Type*: bool /
+        / *Type*: bool /
 
-  True if ChatGPT-4.0 is available, otherwise False.
+        True if ChatGPT-4.0 is available, otherwise False.
         """
         # Wait for the element containing "3.5" and click on it if found
         chatgpt_version = None
@@ -448,18 +448,18 @@ This method verifies the availability of ChatGPT-4.0 for use.
                     max_try -= 1
                 else:
                     return last_answer.text
-        return None
+        return last_answer.text
     
     def click_regen(self):
         """
-Click the 'Regenerate Response' button on the ChatGPT web interface.
+        Click the 'Regenerate Response' button on the ChatGPT web interface.
 
-This method simulates a click on the 'Regenerate Response' button to request a new response
-for the current context.
+        This method simulates a click on the 'Regenerate Response' button to request a new response
+        for the current context.
 
-**Returns:**
+        **Returns:**
 
-(*no returns*)
+        (*no returns*)
         """
         # Wait for the button with class 'btn relative btn-primary m-auto' and click on it if found
         try:
@@ -551,12 +551,14 @@ if __name__ == "__main__":
 
     try:
         while True:
-            cn_input = input("Nhập câu đối Hán tự:")
+            cn_input = input("Input sentence:")
             answer = fake_api.send_request(cn_input)
-            json_answer = extract_json(answer)
-            print("\n")
-            print(f"--> Dịch âm: {json_answer['sv']}\n")
-            print(f"--> Dịch nghĩa: {json_answer['vi']}\n")
+            print(f"Answer: \n{answer}")
+            # json_answer = extract_json(answer)
+            # print("\n")
+            # print(f"json_answer: {json_answer}")
+            # print(f"--> Dịch âm: {json_answer['sv']}\n")
+            # print(f"--> Dịch nghĩa: {json_answer['vi']}\n")
     except KeyboardInterrupt:
         del fake_api
         print('interrupted!')
