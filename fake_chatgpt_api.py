@@ -35,6 +35,8 @@ import undetected_chromedriver as uc
 import os
 import re
 import json
+import time
+import random
 
 
 class FakeChatGPTAPI:
@@ -76,7 +78,7 @@ Constructor for the FakeChatGPTAPI class.
         with open(config_path, 'r', encoding='utf-8') as configfile:
             config.read_file(configfile)
         # config.read(FakeChatGPTAPI.INI_FILE_PATH)
-        self.is_context_created: bool = False
+        self.is_context_created = False
 
         # Extract configuration values
         user_data_dir = config.get('options', 'user-data-dir')
@@ -144,7 +146,8 @@ Constructor for the FakeChatGPTAPI class.
             cookie.pop('domain', None)
             self.driver.add_cookie(cookie)
 
-        if not self.is_login() and manual_login:
+        if manual_login:
+            print("manual_login")
             self.manual_login()
         
         self.use_4o = False
@@ -543,22 +546,98 @@ def signal_handler(sig, frame, obj):
    # Exit the program
    exit(0)
 
+def random_sleep():
+    sleep_time = random.uniform(0.1, 5)  # Random float between 1 and 3
+    print(f"Sleeping for {sleep_time:.2f} seconds")
+    time.sleep(sleep_time)
+
 if __name__ == "__main__":
+    with open("FakeChatGPTAPI/total_chunks.pkl", "rb") as f:
+        total_chunks = pickle.load(f)
+
+    with open("batch_pairs.pkl", 'rb') as f:
+        batch_pairs = pickle.load(f)
+
+
     fake_api = FakeChatGPTAPI()
 
     for sign in (SIGABRT, SIGILL, SIGINT, SIGSEGV, SIGTERM):
       signal(sign, lambda sig, frame: signal_handler(sig, frame, fake_api))
 
+    response_data = []
     try:
-        while True:
-            cn_input = input("Input sentence:")
+        # for i, context in enumerate(total_chunks):
+        #     if i <= 120:
+        #         continue
+            
+        #     # cn_input = f"I am creating questions to assess the ability to find relevant passages and identify answers.\
+        #     #             Generate 3 medium to easy level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
+        #     #             [Question] What is...\
+        #     #             [Answer] ...\
+        #     #             Questions should be dettail, CLEAR, ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
+        #     #             If the answer is a quantity, leave it in number form. The question must be specific and clear so that the reader can find the correct passage to answer, not use the word like this, that, because participants do not see the paragraph.\
+        #     #             Here is the passage: {context}."
+
+        #     cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers for, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
+        #                 Pair 1: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3\
+        #                 Pair 2: [Question] Hỏi gì đó?, [Answer] đáp án\
+        #                 The output MUST be in this format:\
+        #                 [Score Pair 1] 5\
+        #                 [Score Pair 2] 3"
+        #     answer = fake_api.send_request(cn_input)
+        #     print(f"idx: \n{i}")
+        #     response_data.append(answer)
+
+        #     if i % 10 == 0:
+        #         print("batch save!")
+        #         with open(f"response_data_{i//10}.pkl", 'wb') as file:
+        #             pickle.dump(response_data, file)
+
+        #     random_sleep()
+
+        for i, context in enumerate(batch_pairs):
+            if i != 15:
+                continue
+            
+            # cn_input = f"I am creating questions to assess the ability to find relevant passages and identify answers.\
+            #             Generate 3 medium to easy level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
+            #             [Question] What is...\
+            #             [Answer] ...\
+            #             Questions should be dettail, CLEAR, ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
+            #             If the answer is a quantity, leave it in number form. The question must be specific and clear so that the reader can find the correct passage to answer, not use the word like this, that, because participants do not see the paragraph.\
+            #             Here is the passage: {context}."
+
+            # cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers for, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
+            #             Pair x: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3\
+            #             Pair y: [Question] Ai là người đạt giải nhất cuộc thi này?, [Answer] An\
+            #             The output MUST be in this format:\
+            #             [Score Pair x] 5\
+            #             [Score Pair y] 1\
+            #             Here is the question-answer data: \n{context}"
+            cn_input = f"I am evaluating QA tasks using an AI model based on news articles. The dataset contains questions and answers, but the answers still have some unnecessary elements. For example, '1000 năm' should be modified to '1000', '17,5 tỷ USD' to '17,5 tỷ', and '53 tuổi' to '53'. Your task is to remove unnecessary words (such as 'giải', 'tuổi', 'kilometers', etc.) and retain only the essential information. The data is formatted as a question-answer pair on each line: \
+            Pair 1: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3 giải \
+            Pair 2: [Question] Từ nhà Mai đến trường xa bao nhiêu kilometers?, [Answer] 5 kilometers \
+            Modify the answers and return the results in the following format: \
+            [Modified Answer 1] 3 \
+            [Modified Answer 2] 5 \
+            Here is the question-answer data: \n{context}"
             answer = fake_api.send_request(cn_input)
-            print(f"Answer: \n{answer}")
-            # json_answer = extract_json(answer)
-            # print("\n")
-            # print(f"json_answer: {json_answer}")
-            # print(f"--> Dịch âm: {json_answer['sv']}\n")
-            # print(f"--> Dịch nghĩa: {json_answer['vi']}\n")
+            print(f"idx: \n{i}")
+            response_data.append(answer)
+
+            if i % 10 == 0:
+                print("batch save!")
+                with open(f"modilied_answer_add_{i//10 *10}.pkl", 'wb') as file:
+                    pickle.dump(response_data, file)
+
+            random_sleep()
+
+        print("final save!")
+        with open(f"modilied_answer_add_{i}.pkl", 'wb') as file:
+            pickle.dump(response_data, file)
+            
+
+            
     except KeyboardInterrupt:
         del fake_api
         print('interrupted!')
