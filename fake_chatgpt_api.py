@@ -571,14 +571,14 @@ if __name__ == "__main__":
         #         continue
             
         #     # cn_input = f"I am creating questions to assess the ability to find relevant passages and identify answers.\
-        #     #             Generate 3 medium to easy level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
+        #     #             Generate 3 medium to easy-level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
         #     #             [Question] What is...\
         #     #             [Answer] ...\
-        #     #             Questions should be dettail, CLEAR, ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
+        #     #             Questions should be detailed, CLEAR, and ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
         #     #             If the answer is a quantity, leave it in number form. The question must be specific and clear so that the reader can find the correct passage to answer, not use the word like this, that, because participants do not see the paragraph.\
         #     #             Here is the passage: {context}."
 
-        #     cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers for, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
+        #     cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
         #                 Pair 1: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3\
         #                 Pair 2: [Question] Hỏi gì đó?, [Answer] đáp án\
         #                 The output MUST be in this format:\
@@ -600,20 +600,21 @@ if __name__ == "__main__":
                 continue
             
             # cn_input = f"I am creating questions to assess the ability to find relevant passages and identify answers.\
-            #             Generate 3 medium to easy level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
+            #             Generate 3 medium to easy-level questions and answers in Vietnamese based on the following Vietnamese passage. Return the results in the following format:\
             #             [Question] What is...\
             #             [Answer] ...\
-            #             Questions should be dettail, CLEAR, ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
+            #             Questions should be detailed, CLEAR, and ask about ONE PROBLEM. Answers MUST be SHORT from 1 to 3 words. Questions should have specific, definite answers for easy assessment.\
             #             If the answer is a quantity, leave it in number form. The question must be specific and clear so that the reader can find the correct passage to answer, not use the word like this, that, because participants do not see the paragraph.\
             #             Here is the passage: {context}."
 
-            # cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers for, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
+            # cn_input = f"I am evaluating questions for a QA task based on news articles. I already have a set of questions, but some are very general and hard to find accurate answers, while others are specific and easy to find answers. Please assess each question on a scale from 1 to 5, where 1 is a poor question (too general) and 5 is a clear question that is easy to find an accurate answer for. The data I provide is in the following format, where each line is a question-answer pair:\
             #             Pair x: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3\
             #             Pair y: [Question] Ai là người đạt giải nhất cuộc thi này?, [Answer] An\
             #             The output MUST be in this format:\
             #             [Score Pair x] 5\
             #             [Score Pair y] 1\
             #             Here is the question-answer data: \n{context}"
+            
             cn_input = f"I am evaluating QA tasks using an AI model based on news articles. The dataset contains questions and answers, but the answers still have some unnecessary elements. For example, '1000 năm' should be modified to '1000', '17,5 tỷ USD' to '17,5 tỷ', and '53 tuổi' to '53'. Your task is to remove unnecessary words (such as 'giải', 'tuổi', 'kilometers', etc.) and retain only the essential information. The data is formatted as a question-answer pair on each line: \
             Pair 1: [Question] Daniel Day-Lewis đã giành được bao nhiêu giải Oscar cho Nam diễn viên chính xuất sắc?, [Answer] 3 giải \
             Pair 2: [Question] Từ nhà Mai đến trường xa bao nhiêu kilometers?, [Answer] 5 kilometers \
@@ -621,6 +622,7 @@ if __name__ == "__main__":
             [Modified Answer 1] 3 \
             [Modified Answer 2] 5 \
             Here is the question-answer data: \n{context}"
+            
             answer = fake_api.send_request(cn_input)
             print(f"idx: \n{i}")
             response_data.append(answer)
